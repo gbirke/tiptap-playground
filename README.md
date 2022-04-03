@@ -2,15 +2,14 @@
 
 A small toy project where I try to configure the [tiptap Editor](https://tiptap.dev/) to my needs
 
-
 # Installation
 
-	npm install
+    npm install
 
 # Run
 
-	npm run dev
+    npm run dev
 
 # Format source code with prettier
 
-	npm run cs
+    npm run cs

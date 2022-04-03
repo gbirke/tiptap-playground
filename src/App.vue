@@ -29,6 +29,9 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
+import Mention from "@tiptap/extension-mention";
+
+import suggestion from "./suggestion";
 
 const editor = useEditor({
   extensions: [
@@ -45,9 +48,19 @@ const editor = useEditor({
     OrderedList,
     Paragraph,
     Text,
+    Mention.configure({
+      HTMLAttributes: {
+        class: "mention",
+        // TODO how to make it clickable? https://github.com/ueberdosis/tiptap/discussions/851#discussioncomment-95118 suggests you can't use the mention plugin
+      },
+      renderLabel({ options, node }) {
+        return `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
+      },
+      suggestion,
+    }),
   ],
   content:
-    "<p>Hello World!</p><ul><li>First list item</li><li>Other item with <em>emphasis</em></li></ul><h1>A heading</h1><h2>A subheading</h2><blockquote>To err is human</blockquote><hr>",
+    '<p>Hello World!</p><ul><li>First list item</li><li>Other item with <em>emphasis</em></li></ul><h1>A heading</h1><h2>A subheading</h2><blockquote>To err is human</blockquote><hr><p>Mentioning <span data-type="mention" class="mention" data-id="Cindy Lauper" contenteditable="false">@Cindy Lauper</span>, among others</p>',
 });
 
 const debugContent = ref("");
@@ -81,5 +94,12 @@ function updateDebugContent() {
 .container pre {
   background: lightgrey;
   padding: 5px;
+}
+
+.mention {
+  border: 1px solid #000;
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.3rem;
+  box-decoration-break: clone;
 }
 </style>
