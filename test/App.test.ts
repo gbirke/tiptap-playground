@@ -15,7 +15,7 @@ test("mount component", async () => {
 
   expect(debugOutput.text()).toBe("");
 
-  await wrapper.find("button").trigger("click");
+  await wrapper.find("#showJson").trigger("click");
 
   const jsonContent = JSON.parse(debugOutput.text());
 

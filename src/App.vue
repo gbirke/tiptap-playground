@@ -3,7 +3,10 @@
     <div class="container">
       <div>
         <editor-content :editor="editor" />
-        <button @click="updateDebugContent">Show JSON</button>
+        <button id="showMarkdown" @click="updateMarkdownContent">
+          Show Markdown
+        </button>
+        <button id="showJson" @click="updateDebugContent">Show JSON</button>
       </div>
       <div>
         <pre>{{ debugContent }}</pre>
@@ -15,6 +18,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
+
+import { defaultMarkdownSerializer } from "prosemirror-markdown";
 
 import Blockquote from "@tiptap/extension-blockquote";
 import Bold from "@tiptap/extension-bold";
@@ -74,6 +79,12 @@ const debugContent = ref("");
 
 function updateDebugContent() {
   debugContent.value = JSON.stringify(editor.value.getJSON(), null, 2);
+}
+
+function updateMarkdownContent() {
+  debugContent.value = defaultMarkdownSerializer.serialize(
+    editor.value.view.state.doc
+  );
 }
 </script>
 
