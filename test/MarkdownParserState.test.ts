@@ -63,7 +63,7 @@ describe("MarkdownParseState", () => {
     });
   });
 
-    test("adding text adds it to last opened node", () => {
+  test("adding text adds it to last opened node", () => {
     const state = new MarkdownParseState({});
 
     state.openNode("paragraph");
@@ -75,9 +75,9 @@ describe("MarkdownParseState", () => {
     expect(getDocument(state)).toEqual({
       type: "doc",
       content: [
-          { type: "paragraph", content: [{type: "text", text:"first para"}] },
-          { type: "paragraph", content: [{type: "text", text:"second para"}] }],
+        { type: "paragraph", content: [{ type: "text", text: "first para" }] },
+        { type: "paragraph", content: [{ type: "text", text: "second para" }] },
+      ],
     });
   });
-
 });

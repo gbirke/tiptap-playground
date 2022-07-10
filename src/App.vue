@@ -2,11 +2,24 @@
   <div class="app">
     <div class="container">
       <div>
-        <editor-content :editor="editor" />
-        <button id="showMarkdown" @click="updateMarkdownContent">
-          Show Markdown
-        </button>
-        <button id="showJson" @click="updateDebugContent">Show JSON</button>
+        <section>
+          <h2>Editor</h2>
+          <editor-content :editor="editor" />
+          <button id="showMarkdown" @click="updateMarkdownContent">
+            Show Markdown
+          </button>
+          <button id="showJson" @click="updateDebugContent">Show JSON</button>
+        </section>
+        <section>
+          <h2>Input Markup</h2>
+          <div>
+            <textarea class="raw-text-input" v-model="markupInput"></textarea>
+          </div>
+          <button @click="setSampleMarkdown">
+            Insert sample markdown in text field
+          </button>
+          <button @click="insertMarkdown">Insert markup in editor</button>
+        </section>
       </div>
       <div>
         <pre>{{ debugContent }}</pre>
@@ -21,20 +34,8 @@ import { useEditor, EditorContent } from "@tiptap/vue-3";
 
 import { defaultMarkdownSerializer } from "prosemirror-markdown";
 
-import Blockquote from "@tiptap/extension-blockquote";
-import Bold from "@tiptap/extension-bold";
-import BulletList from "@tiptap/extension-bullet-list";
-import Document from "@tiptap/extension-document";
-import Gapcursor from "@tiptap/extension-gapcursor";
-import Heading from "@tiptap/extension-heading";
-import History from "@tiptap/extension-history";
-import HorizontalRule from "@tiptap/extension-horizontal-rule";
-import Italic from "@tiptap/extension-italic";
-import ListItem from "@tiptap/extension-list-item";
-import OrderedList from "@tiptap/extension-ordered-list";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import Mention from "@tiptap/extension-mention";
+import { customMarkdownParser } from "./markdownparser";
+import { configureExtensions } from "./extensions";
 
 import suggestion from "./suggestion";
 
@@ -47,21 +48,8 @@ const props = defineProps({
 });
 
 const editor = useEditor({
-  extensions: [
-    Blockquote,
-    Bold,
-    BulletList,
-    Document,
-    Gapcursor,
-    Heading,
-    History,
-    HorizontalRule,
-    Italic,
-    ListItem,
-    OrderedList,
-    Paragraph,
-    Text,
-    Mention.configure({
+  extensions: configureExtensions({
+    mention: {
       HTMLAttributes: {
         class: "mention",
         // TODO how to make it clickable? https://github.com/ueberdosis/tiptap/discussions/851#discussioncomment-95118 suggests you can't use the mention plugin
@@ -70,12 +58,13 @@ const editor = useEditor({
         return `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
       },
       suggestion,
-    }),
-  ],
+    },
+  }),
   content: props.defaultEditorContent,
 });
 
 const debugContent = ref("");
+const markupInput = ref("");
 
 function updateDebugContent() {
   debugContent.value = JSON.stringify(editor.value.getJSON(), null, 2);
@@ -85,6 +74,24 @@ function updateMarkdownContent() {
   debugContent.value = defaultMarkdownSerializer.serialize(
     editor.value.view.state.doc
   );
+}
+
+function setSampleMarkdown() {
+  markupInput.value = `# A Heading
+
+A paragraph with **bold** and italic text
+
+Another paragraph`;
+}
+
+function insertMarkdown() {
+  const newContent = customMarkdownParser.parse(markupInput.value);
+  console.log("generated input", newContent);
+  debugContent.value = JSON.stringify(newContent, null, 2);
+  editor.value.commands.setContent({
+    type: "doc",
+    content: [newContent.content],
+  });
 }
 </script>
 
@@ -119,5 +126,10 @@ function updateMarkdownContent() {
   border-radius: 0.4rem;
   padding: 0.1rem 0.3rem;
   box-decoration-break: clone;
+}
+
+.raw-text-input {
+  width: 500px;
+  height: 10em;
 }
 </style>

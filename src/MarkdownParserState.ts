@@ -2,7 +2,7 @@ import type { JSONContent } from "@tiptap/core";
 import type Token from "markdown-it/lib/token";
 
 // To pacify ESLint, in tiptap attrs are defined as "any"
-type JSONAttr = string|number|null;
+type JSONAttr = string | number | null;
 
 const createNode = (
   type?: string,
