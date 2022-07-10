@@ -33,6 +33,14 @@ import Mention from "@tiptap/extension-mention";
 
 import suggestion from "./suggestion";
 
+const props = defineProps({
+  defaultEditorContent: {
+    type: String,
+    default:
+      '<p>Hello World!</p><ul><li>First list item</li><li>Other item with <em>emphasis</em></li></ul><h1>A heading</h1><h2>A subheading</h2><blockquote>To err is human</blockquote><hr><p>Mentioning <span data-type="mention" class="mention" data-id="Cindy Lauper" contenteditable="false">@Cindy Lauper</span>, among others</p>',
+  },
+});
+
 const editor = useEditor({
   extensions: [
     Blockquote,
@@ -59,8 +67,7 @@ const editor = useEditor({
       suggestion,
     }),
   ],
-  content:
-    '<p>Hello World!</p><ul><li>First list item</li><li>Other item with <em>emphasis</em></li></ul><h1>A heading</h1><h2>A subheading</h2><blockquote>To err is human</blockquote><hr><p>Mentioning <span data-type="mention" class="mention" data-id="Cindy Lauper" contenteditable="false">@Cindy Lauper</span>, among others</p>',
+  content: props.defaultEditorContent,
 });
 
 const debugContent = ref("");

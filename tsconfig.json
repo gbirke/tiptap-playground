@@ -1,5 +1,6 @@
 {
-  "files": [],
+  "include": ["**/*.ts", "**/*.vue"],
+  "files": ["vue-shim.d.ts"],
   "references": [
     {
       "path": "./tsconfig.vite-config.json"
