@@ -1,8 +1,16 @@
 import type { JSONContent } from "@tiptap/core";
 import type Token from "markdown-it/lib/token";
+import isEqual from "fast-deep-equal";
 
-// To pacify ESLint, in tiptap attrs are defined as "any"
-type JSONAttr = string | number | null;
+// Re-definitions of parts of JSONContent
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+type JSONAttr = Record<string, any>;
+type JSONMark = {
+  type: string;
+  attrs?: Record<string, any>;
+  [key: string]: any;
+};
+/* eslint-enable  @typescript-eslint/no-explicit-any */
 
 const createNode = (
   type?: string,
@@ -62,11 +70,20 @@ export class MarkdownParseState {
     if (!top.content) {
       top.content = [];
     }
-    // TODO merge text nodes with the same marks
+    // merge text with same marks
+    const lastNode = top.content[top.content.length - 1];
+    if (
+      lastNode &&
+      lastNode.type === "text" &&
+      isEqual(lastNode.marks, top.marks)
+    ) {
+      lastNode.text += text;
+      return;
+    }
     const textNode = {
       type: "text",
       text,
-      marks: top.marks,
+      marks: top.marks ? [...top.marks] : undefined,
     };
     top.content.push(textNode);
   }
@@ -96,5 +113,29 @@ export class MarkdownParseState {
       );
     }
     return this.addNode(info.type, info.attrs, info.content);
+  }
+
+  openMark(mark: JSONMark) {
+    const top = this.top();
+    const marks: JSONMark[] = top.marks || [];
+    for (let i = 0; i < marks.length; i++) {
+      if (isEqual(mark, marks[i])) {
+        return;
+      }
+    }
+    top.marks = [...marks, mark];
+  }
+
+  // Removes the given mark from the set of active marks.
+  closeMark(mark: JSONMark) {
+    const top = this.top();
+    const marks: JSONMark[] = top.marks || [];
+    for (let i = 0; i < marks.length; i++) {
+      if (isEqual(mark, marks[i])) {
+        marks.splice(i, 1);
+        top.marks = [...marks];
+        return;
+      }
+    }
   }
 }
